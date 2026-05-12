@@ -1,0 +1,39 @@
+{
+  "total_processed": 1333,
+  "status_counts": {
+    "Catch-all domain": 1104,
+    "Undeliverable": 15,
+    "Role-based address": 2,
+    "Deliverable": 210,
+    "DNS resolution failed": 2
+  },
+  "column_breakdown": {
+    "EMAIL1": {
+      "Catch-all domain": 879,
+      "DNS resolution failed": 1,
+      "Deliverable": 108,
+      "Undeliverable": 9,
+      "Role-based address": 2
+    },
+    "EMAIL2": {
+      "Undeliverable": 6,
+      "Catch-all domain": 225,
+      "Deliverable": 77,
+      "DNS resolution failed": 1
+    },
+    "EMAIL4": {
+      "Deliverable": 1
+    },
+    "EMAIL3": {
+      "Deliverable": 24
+    }
+  },
+  "dedup_stats": {
+    "total_verified": 1329,
+    "pending": 0,
+    "dedup_savings": 1329
+  },
+  "domain_cache_size": 0,
+  "corrections_applied": 0,
+  "processing_time_sec": 26.8584893
+}
