@@ -1,4 +1,4 @@
-use crate::config::{FREE_EMAIL_PROVIDERS, MAX_RETRIES, RETRY_BACKOFF_BASE, RETRY_BACKOFF_MAX, SMTP_TIMEOUT};
+use crate::config::{FREE_EMAIL_PROVIDERS, RETRY_BACKOFF_BASE, RETRY_BACKOFF_MAX};
 use crate::dns_resolver::{check_disposable_domain, check_role_based_address, resolve_mx_records_cached};
 use crate::smtp_verifier::{detect_catch_all, SmtpVerifier};
 use crate::types::{DomainInfo, VerificationResult, VerificationStatus};
@@ -182,7 +182,7 @@ impl EmailVerifier {
             for attempt in 0..=self.max_retries {
                 let verifier = SmtpVerifier::new(self.timeout);
                 match verifier.test_connection(&mx_host, &normalized).await {
-                    Ok((code, msg, diag)) => {
+                    Ok((code, _msg, _diag)) => {
                         match code {
                             250 => {
                                 final_status = VerificationStatus::Deliverable;

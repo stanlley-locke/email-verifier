@@ -18,6 +18,12 @@ pub fn detect_file_format(filepath: &str) -> Result<&'static str> {
     }
 }
 
+pub fn get_sheets(filepath: &str) -> Result<Vec<String>> {
+    let workbook: Sheets<BufReader<std::fs::File>> = open_workbook_auto(filepath)
+        .map_err(|e| anyhow::anyhow!("Failed to open Excel file: {}", e))?;
+    Ok(workbook.sheet_names().to_vec())
+}
+
 pub fn read_excel_file(
     filepath: &str,
     sheet_name: Option<&str>,
@@ -111,7 +117,7 @@ pub fn write_csv_output(
         let mut output_row = row_data.clone();
         
         // Insert status values (in reverse order to maintain indices)
-        for (email_col, status_col) in status_columns.iter().rev() {
+        for (_email_col, status_col) in status_columns.iter().rev() {
             let key = (row_idx + 2, *status_col);
             if let Some(result) = results.get(&key) {
                 output_row.insert(*status_col - 1, result.status.as_str().to_string());

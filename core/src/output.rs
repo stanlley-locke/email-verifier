@@ -129,6 +129,7 @@ impl OutputWriter {
         status_columns: &[(usize, usize)], // (email_col 1-based, status_col 1-based)
         results: &HashMap<CellKey, VerificationResult>,
         auto_size: bool,
+        color_theme: Option<String>,
     ) -> anyhow::Result<()> {
         // ── Build merged header list ──────────────────────────────────────────
         let mut output_headers = headers.to_vec();
@@ -152,21 +153,27 @@ impl OutputWriter {
 
         let border_fmt = Format::new().set_border(FormatBorder::Thin);
 
-        let blue_fmt = Format::new()
-            .set_border(FormatBorder::Thin)
-            .set_background_color(Color::RGB(0x00_B0_F0)); // #00B0F0
+        let mut blue_fmt = Format::new().set_border(FormatBorder::Thin);
+        let mut red_fmt = Format::new().set_border(FormatBorder::Thin);
+        let mut yellow_fmt = Format::new().set_border(FormatBorder::Thin);
+        let mut grey_fmt = Format::new().set_border(FormatBorder::Thin);
 
-        let red_fmt = Format::new()
-            .set_border(FormatBorder::Thin)
-            .set_background_color(Color::RGB(0xFF_C7_CE)); // #FFC7CE
-
-        let yellow_fmt = Format::new()
-            .set_border(FormatBorder::Thin)
-            .set_background_color(Color::RGB(0xFF_EB_9C)); // #FFEB9C
-
-        let grey_fmt = Format::new()
-            .set_border(FormatBorder::Thin)
-            .set_background_color(Color::RGB(0xD3_D3_D3)); // #D3D3D3
+        let theme = color_theme.unwrap_or_else(|| "Default".to_string());
+        
+        if theme == "Subtle" {
+            blue_fmt = blue_fmt.set_background_color(Color::RGB(0xE0_F7_FA)); // Light cyan
+            red_fmt = red_fmt.set_background_color(Color::RGB(0xFF_EB_EE)); // Light pink
+            yellow_fmt = yellow_fmt.set_background_color(Color::RGB(0xFF_FDE_7)); // Light yellow
+            grey_fmt = grey_fmt.set_background_color(Color::RGB(0xF5_F5_F5)); // Very light grey
+        } else if theme == "None" {
+            // Leave formats as plain with just borders
+        } else {
+            // Default
+            blue_fmt = blue_fmt.set_background_color(Color::RGB(0x00_B0_F0));
+            red_fmt = red_fmt.set_background_color(Color::RGB(0xFF_C7_CE));
+            yellow_fmt = yellow_fmt.set_background_color(Color::RGB(0xFF_EB_9C));
+            grey_fmt = grey_fmt.set_background_color(Color::RGB(0xD3_D3_D3));
+        }
 
         // ── Workbook / worksheet ──────────────────────────────────────────────
         let mut workbook = Workbook::new();

@@ -1,69 +1,68 @@
-# Email Verifier
+# Email Verifier Desktop App
 
-A high-performance, concurrent Rust CLI application for bulk email verification. Designed to process large datasets (Excel and CSV formats) rapidly by leveraging async networking and a multi-layered verification pipeline.
+A high-performance, production-ready desktop application designed to verify massive lists of email addresses efficiently and securely. Built with a lightning-fast Rust backend and a beautiful, glassy React frontend using Tauri.
 
-## 🚀 Key Features
+## 🚀 Features
 
-- **Multi-Layered Verification Pipeline:**
-  1. **Syntax Check:** Validates format using strict regex.
-  2. **Disposable & Role-Based Check:** Filters out temporary emails (e.g., mailinator) and generic role addresses (e.g., admin@, support@).
-  3. **DNS Resolution:** Validates the existence of Mail Exchange (MX) records.
-  4. **Catch-All Detection:** Probes domains with non-existent aliases to determine if the server accepts all traffic.
-  5. **Active SMTP Verification:** Negotiates an SMTP handshake to ensure the specific mailbox exists without actually sending an email.
-- **High Concurrency:** Built on `tokio`, allowing hundreds of network requests concurrently for rapid processing.
-- **Excel & CSV Native:** Seamlessly reads from and writes to `.xlsx`, `.xlsm`, and `.csv` files.
-- **Smart Output:** Generates two tailored reports:
-  - **Minimal:** Original columns only. Deliverable and Catch-All emails are highlighted in bright blue for immediate use.
-  - **Comprehensive:** A fully color-coded report with explicit status columns appended to each analyzed email column.
+### Core Engine (Rust)
+- **Multi-threaded Processing**: Uses asynchronous Tokio runtime to verify thousands of emails concurrently.
+- **Advanced Verification**: 
+  - Syntax checking via robust RegEx.
+  - MX Record DNS lookups.
+  - Catch-all and deliverability SMTP handshakes.
+- **Smart Formatting**: Dynamically processes `.csv` and `.xlsx` files, and automatically detects/resolves issues like missing sheets or malformed cells.
+- **Auto-sizing Excel Exports**: Writes comprehensive color-coded `.xlsx` reports that auto-resize to fit data beautifully.
 
-## 🛠 Installation
+### Frontend Dashboard (React + Tauri)
+- **Live Verification UI**: View the exact live progress of your verification jobs via an animated, mathematically synchronized circular progress bar.
+- **Configuration Modal**: Select target output folders, designate specific Excel sheets, and define custom color formatting (Default, Subtle, or None) before executing a job.
+- **Data Persistence**: A custom SQLite/JSON database approach ensures your historical analytics, history logs, and user profile persist across app restarts.
+- **Global Analytics**: High-level aggregated statistics on lifetime processed lists, total catch-alls, and average deliverability rates.
 
-You must have [Rust and Cargo installed](https://rustup.rs/) on your system.
+### OS Native Integrations
+- **Reliable Output Launching**: Implements custom Rust shell handlers (`open_file_system`) to bypass browser-based permission errors and launch the finished `.xlsx` files instantly in your OS's native spreadsheet application.
+- **Notifications**: System-wide event broadcasting for real-time alerts.
 
+### User Customization
+- **Theme Engine**: Toggle between the clean 'White' layout or a sleek 'Obsidian' Dark Mode.
+- **Profile Manager**: Personalize the application with custom display names and preset avatars (👨‍💼/👩‍💼).
+
+## 🛠 Architecture
+The application is structured into a monorepo approach:
+- `/core`: The core Rust library responsible for logic, multi-threading, and verification.
+- `/cli`: A standalone Rust binary to run verification jobs directly from the terminal without a GUI.
+- `/gui`: The Tauri wrapper wrapping a React + Vite frontend.
+  - `src-tauri`: The Rust Tauri backend, defining the IPC (Inter-Process Communication) endpoints like `start_verification`, `get_history`, and `save_profile`.
+  - `src`: The React components and Tailwind CSS styling.
+
+## 💻 Getting Started
+
+### Prerequisites
+- Node.js (v18+)
+- Rust (Cargo)
+- NPM or Yarn
+
+### Installation
+
+1. Navigate to the GUI directory:
 ```bash
-# Clone the repository (if applicable) and navigate to the directory
-cd email-verifier
-
-# Build the release executable
-cargo build --release
+cd gui
 ```
 
-After building, the standalone executable will be located at `target/release/email-verifier.exe` (on Windows) or `target/release/email-verifier` (on Mac/Linux).
-
-## 📖 Usage Quickstart
-
-You can run the tool directly using the built executable:
-
-```cmd
-# Basic execution - auto-detects "email" columns and verifies them
-email-verifier.exe input.xlsx
-
-# Specify a sheet and an output name prefix
-email-verifier.exe input.xlsx -s "Mailing List" -o verified_campaign
-
-# Run in fast-mode (skip active SMTP handshakes, check syntax/DNS only)
-email-verifier.exe input.csv --no-smtp
+2. Install the JavaScript dependencies:
+```bash
+npm install
 ```
 
-> **For a complete list of commands, performance tuning parameters, and use-cases, please read our dedicated [Use Cases Guide](commands.md).**
+3. Start the Development Server:
+```bash
+npm run tauri dev
+```
+*(This command will automatically spin up the Vite React server and compile the Rust application.)*
 
-## 📊 Output Formats
+## 🎨 Design Philosophy
+The UI was meticulously crafted to avoid the "spreadsheet app" feel. Instead, it utilizes a "Glassy Luxury" aesthetic—focusing on generous padding, subtle drop shadows, smooth transitions, and distinct typography to create a premium user experience.
 
-Every successful run generates three files automatically:
-
-1. **`[name]_minimal.xlsx`**: Your original dataset untouched, except safe emails (Deliverable and Catch-all) are highlighted with a blue background. Perfect for immediately loading into your mailing software.
-2. **`[name]_comprehensive.xlsx`**: Detailed output where every email column gets a sister `_status` column. Color-coded based on severity:
-   - **Blue:** Deliverable / Success
-   - **Grey:** Catch-all / Role-Based / Disposable
-   - **Yellow:** Domain Corrected (typos automatically fixed)
-   - **Red:** Undeliverable / Mailbox Not Exist / Syntax Error
-3. **`[name].summary.json`**: A lightweight JSON file containing performance metrics, error rates, and total verification counts.
-
-## ⚙️ Architecture
-
-The codebase is heavily modularized to support easy feature addition:
-- `src/main.rs`: Execution orchestration and Tokio task management.
-- `src/verifier.rs`: The state machine executing the 6-layer logic.
-- `src/smtp_verifier.rs`: Low-level network socket handling and SMTP protocol negotiations.
-- `src/output.rs`: Advanced Excel file manipulation using `rust_xlsxwriter`.
-- `src/dedup.rs`: In-memory caching and deduplication to prevent querying the same domain/email multiple times in one batch.
+## 📄 Output Types
+- **Minimal Report**: A filtered `.csv` file containing *only* the emails that are fully deliverable and safe to send to.
+- **Comprehensive Report**: A fully styled `.xlsx` file containing every original email, accompanied by appended columns indicating Status, Details, and processing time, complete with color-coded highlighting.

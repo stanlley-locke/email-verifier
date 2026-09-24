@@ -1,6 +1,5 @@
 use crate::config::DOMAIN_CORRECTIONS;
 use crate::types::EmailCellResult;
-use regex::Regex;
 
 pub fn correct_domain_typo(domain: &str) -> (String, bool, Option<String>) {
     let original = domain.to_lowercase().trim().to_string();
